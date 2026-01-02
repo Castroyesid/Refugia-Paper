@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Refugia Linguistic Analysis Script
-===================================
+Refugia Linguistic Analysis Script (CORRECTED VERSION)
+=======================================================
 Statistical analysis of phonemic and grammatical feature distributions
 in hypothesized linguistic refugia.
 
@@ -12,6 +12,14 @@ This script:
 4. Computes Moran's I spatial autocorrelation
 5. Performs permutation tests for robustness
 6. Generates publication-ready tables
+
+CORRECTIONS (27 December 2025):
+- Added Pacific Oceania extension to Sahul: captures Hawaiian (lat < 50, lng < -130)
+  and Rapanui (lat < 0, lng < -100) as Sahul rather than Americas
+- Added Siberia exclusion: languages at lat > 60, lng < -168 (Chukotka) are 
+  non_refugia rather than Americas (affects Chukchi, Siberian Yupik)
+- Absence of Fricatives now includes v=6 (no fricatives or nasals) in addition 
+  to v=3 (no fricatives), adding Maxakalí to the count
 
 Author: Yesid Castro
 Date: 25 December 2025
@@ -2013,6 +2021,592 @@ WALS_131A_NUMERALS = """
 </feature>
 """
 
+WALS_8A_LATERAL_CONSONANTS = """
+<feature number="8A" base_url="https://wals.info/" name="Lateral Consonants">
+<description>
+<url>https://wals.info/feature/8A.xml</url>
+<timestamp>2024-10-18T11:59:12.029308+02:00</timestamp>
+</description>
+<v numeric="1" description="No laterals" icon_id="cffffff" icon_url="https://wals.info/clld-static/icons/cffffff.png" zindex="0">
+<l c="ani" n="//Ani" lng="21.9166666667" lat="-18.9166666667"/>
+<l c="aco" n="Acoma" lng="-107.583333333" lat="34.9166666667"/>
+<l c="adz" n="Adzera" lng="146.25" lat="-6.25"/>
+<l c="ain" n="Ainu" lng="143.0" lat="43.0"/>
+<l c="akn" n="Akan" lng="-1.25" lat="6.5"/>
+<l c="akw" n="Akawaio" lng="-59.5" lat="6.0"/>
+<l c="ala" n="Alamblak" lng="143.333333333" lat="-4.66666666667"/>
+<l c="amc" n="Amahuaca" lng="-72.5" lat="-10.5"/>
+<l c="adk" n="Andoke" lng="-72.0" lat="-0.666666666667"/>
+<l c="api" n="Apinayé" lng="-48.0" lat="-5.5"/>
+<l c="apu" n="Apurinã" lng="-67.0" lat="-9.0"/>
+<l c="arb" n="Arabela" lng="-75.1666666667" lat="-2.0"/>
+<l c="asm" n="Asmat" lng="138.5" lat="-5.5"/>
+<l c="brr" n="Bororo" lng="-57.0" lat="-16.0"/>
+<l c="bri" n="Bribri" lng="-83.0" lat="9.41666666667"/>
+<l c="cad" n="Caddo" lng="-93.5" lat="33.3333333333"/>
+<l c="cax" n="Campa (Axininca)" lng="-74.0" lat="-12.0"/>
+<l c="car" n="Carib" lng="-56.0" lat="5.5"/>
+<l c="cyv" n="Cayuvava" lng="-65.5" lat="-13.5"/>
+<l c="cve" n="Chuave" lng="145.116666667" lat="-6.11666666667"/>
+<l c="cof" n="Cofán" lng="-77.1666666667" lat="0.166666666667"/>
+<l c="cmn" n="Comanche" lng="-101.5" lat="33.5"/>
+<l c="cre" n="Cree (Plains)" lng="-110.0" lat="54.0"/>
+<l c="cub" n="Cubeo" lng="-70.5" lat="1.33333333333"/>
+<l c="dad" n="Dadibi" lng="144.583333333" lat="-6.55"/>
+<l c="dag" n="Daga" lng="149.333333333" lat="-10.0"/>
+<l c="det" n="Deti" lng="24.5" lat="-20.5"/>
+<l c="der" n="Dla (Proper)" lng="141.0" lat="-3.58333333333"/>
+<l c="efi" n="Efik" lng="8.5" lat="4.91666666667"/>
+<l c="eja" n="Ejagham" lng="8.66666666667" lat="5.41666666667"/>
+<l c="epe" n="Epena Pedee" lng="-77.0" lat="3.0"/>
+<l c="fas" n="Fasu" lng="143.333333333" lat="-6.58333333333"/>
+<l c="fef" n="Fe&#39;fe&#39;" lng="10.1666666667" lat="5.25"/>
+<l c="gds" n="Gadsup" lng="146.0" lat="-6.25"/>
+<l c="gar" n="Garo" lng="90.5" lat="25.6666666667"/>
+<l c="ham" n="Hamtai" lng="146.25" lat="-7.5"/>
+<l c="hop" n="Hopi" lng="-110.0" lat="36.0"/>
+<l c="hum" n="Huitoto (Murui)" lng="-73.5" lat="-1.0"/>
+<l c="ika" n="Ika" lng="-73.75" lat="10.6666666667"/>
+<l c="irr" n="Irarutu" lng="133.5" lat="-3.0"/>
+<l c="iwm" n="Iwam" lng="142.0" lat="-4.33333333333"/>
+<l c="jpn" n="Japanese" lng="140.0" lat="37.0"/>
+<l c="jiv" n="Jivaro" lng="-78.0" lat="-2.5"/>
+<l c="jom" n="Jomang" lng="30.5" lat="10.5833333333"/>
+<l c="kng" n="Kaingang" lng="-52.0" lat="-26.0"/>
+<l c="krk" n="Karok" lng="-123.0" lat="41.6666666667"/>
+<l c="krb" n="Kiribati" lng="173.0" lat="1.33333333333"/>
+<l c="kiw" n="Kiwai (Southern)" lng="143.5" lat="-8.0"/>
+<l c="kla" n="Klao" lng="-8.75" lat="4.75"/>
+<l c="koh" n="Kohumono" lng="8.11666666667" lat="6.0"/>
+<l c="kpa" n="Kpan" lng="10.1666666667" lat="7.58333333333"/>
+<l c="kwo" n="Kwoma" lng="142.75" lat="-4.16666666667"/>
+<l c="mao" n="Maori" lng="176.0" lat="-40.0"/>
+<l c="max" n="Maxakalí" lng="-40.0" lat="-18.0"/>
+<l c="may" n="Maybrat" lng="132.5" lat="-1.33333333333"/>
+<l c="hok" n="Min (Southern)" lng="118.0" lat="25.0"/>
+<l c="mtp" n="Mixe (Totontepec)" lng="-96.0" lat="17.25"/>
+<l c="mor" n="Mor" lng="135.75" lat="-2.95"/>
+<l c="mui" n="Muinane" lng="-72.5" lat="-1.0"/>
+<l c="nht" n="Nahuatl (Tetelcingo)" lng="-99.0" lat="19.6666666667"/>
+<l c="kho" n="Nama" lng="18.0" lat="-25.5"/>
+<l c="nas" n="Nasioi" lng="155.583333333" lat="-6.33333333333"/>
+<l c="nim" n="Nimboran" lng="140.166666667" lat="-2.5"/>
+<l c="nko" n="Nkore-Kiga" lng="29.8333333333" lat="-0.916666666667"/>
+<l c="oca" n="Ocaina" lng="-71.75" lat="-2.75"/>
+<l c="pnr" n="Panare" lng="-66.0" lat="6.5"/>
+<l c="pau" n="Paumarí" lng="-64.0" lat="-6.0"/>
+<l c="prh" n="Pirahã" lng="-62.0" lat="-7.0"/>
+<l c="rap" n="Rapanui" lng="-109.366666667" lat="-27.1166666667"/>
+<l c="res" n="Resígaro" lng="-71.5" lat="-2.41666666667"/>
+<l c="ror" n="Roro" lng="146.583333333" lat="-8.75"/>
+<l c="rtk" n="Rotokas" lng="155.166666667" lat="-6.0"/>
+<l c="snm" n="Sanuma" lng="-64.6666666667" lat="4.5"/>
+<l c="snc" n="Seneca" lng="-77.5" lat="42.5"/>
+<l c="snt" n="Sentani" lng="140.583333333" lat="-2.58333333333"/>
+<l c="shs" n="Shasta" lng="-122.666666667" lat="41.8333333333"/>
+<l c="shk" n="Shipibo-Konibo" lng="-75.0" lat="-7.5"/>
+<l c="shi" n="Shiriana" lng="-62.8333333333" lat="3.5"/>
+<l c="sin" n="Siona" lng="-76.25" lat="0.333333333333"/>
+<l c="srn" n="Sirionó" lng="-64.0" lat="-15.5833333333"/>
+<l c="sue" n="Suena" lng="147.55" lat="-7.75"/>
+<l c="tac" n="Tacana" lng="-68.0" lat="-13.5"/>
+<l c="tic" n="Ticuna" lng="-70.5" lat="-4.0"/>
+<l c="tso" n="Tsou" lng="120.75" lat="23.5"/>
+<l c="urk" n="Urubú-Kaapor" lng="-46.5" lat="-2.33333333333"/>
+<l c="usa" n="Usan" lng="145.166666667" lat="-4.83333333333"/>
+<l c="bno" n="Waimaha" lng="-70.25" lat="0.333333333333"/>
+<l c="wnt" n="Wantoat" lng="146.5" lat="-6.16666666667"/>
+<l c="wao" n="Waorani" lng="-76.5" lat="-1.0"/>
+<l c="wps" n="Wapishana" lng="-60.0" lat="2.66666666667"/>
+<l c="war" n="Wari&#39;" lng="-65.0" lat="-11.3333333333"/>
+<l c="wic" n="Wichita" lng="-97.3333333333" lat="33.3333333333"/>
+<l c="yag" n="Yagua" lng="-72.0" lat="-3.5"/>
+<l c="yar" n="Yareba" lng="148.5" lat="-9.5"/>
+<l c="yaw" n="Yawa" lng="136.25" lat="-1.75"/>
+</v>
+<v numeric="2" description="/l/, no obstruent laterals" icon_id="c0000dd" icon_url="https://wals.info/clld-static/icons/c0000dd.png" zindex="0">
+<l c="xoo" n="!Xóõ" lng="21.5" lat="-24.0"/>
+<l c="abi" n="Abipón" lng="-61.0" lat="-29.0"/>
+<l c="abk" n="Abkhaz" lng="41.0" lat="43.0833333333"/>
+<l c="acm" n="Achumawi" lng="-121.0" lat="41.5"/>
+<l c="agh" n="Aghem" lng="10.0" lat="6.66666666667"/>
+<l c="aiz" n="Aizi" lng="-4.5" lat="5.25"/>
+<l c="alw" n="Alawa" lng="134.25" lat="-15.1666666667"/>
+<l c="alb" n="Albanian" lng="20.0" lat="41.0"/>
+<l c="aea" n="Aleut (Eastern)" lng="-164.0" lat="54.75"/>
+<l c="ald" n="Alladian" lng="-4.33333333333" lat="5.16666666667"/>
+<l c="ame" n="Amele" lng="145.583333333" lat="-5.25"/>
+<l c="amh" n="Amharic" lng="38.0" lat="10.0"/>
+<l c="amo" n="Amo" lng="8.66666666667" lat="10.3333333333"/>
+<l c="amz" n="Amuzgo" lng="-98.0" lat="16.8333333333"/>
+<l c="anc" n="Angas" lng="9.5" lat="9.5"/>
+<l c="ao" n="Ao" lng="94.6666666667" lat="26.5833333333"/>
+<l c="aeg" n="Arabic (Egyptian)" lng="31.0" lat="30.0"/>
+<l c="ana" n="Araona" lng="-67.75" lat="-12.3333333333"/>
+<l c="arp" n="Arapesh (Mountain)" lng="143.166666667" lat="-3.46666666667"/>
+<l c="arm" n="Armenian (Eastern)" lng="45.0" lat="40.0"/>
+<l c="amp" n="Arrernte (Mparntwe)" lng="136.0" lat="-24.0"/>
+<l c="ata" n="Atayal" lng="121.333333333" lat="24.5"/>
+<l c="awn" n="Awngi" lng="36.6666666667" lat="10.8333333333"/>
+<l c="aym" n="Aymara (Central)" lng="-69.0" lat="-17.0"/>
+<l c="aze" n="Azerbaijani" lng="48.5" lat="40.5"/>
+<l c="bag" n="Bagirmi" lng="16.0" lat="11.6666666667"/>
+<l c="bai" n="Bai" lng="100.0" lat="26.0"/>
+<l c="baj" n="Bajau (Sama)" lng="123.0" lat="-4.33333333333"/>
+<l c="bki" n="Bakairí" lng="-55.0" lat="-14.0"/>
+<l c="bam" n="Bambara" lng="-7.5" lat="12.5"/>
+<l c="byu" n="Bandjalang (Yugumbir)" lng="153.0" lat="-27.9166666667"/>
+<l c="brd" n="Bardi" lng="122.916666667" lat="-16.5833333333"/>
+<l c="brb" n="Bariba" lng="2.5" lat="10.0"/>
+<l c="bsk" n="Bashkir" lng="58.0" lat="53.0"/>
+<l c="bsq" n="Basque" lng="-3.0" lat="43.0"/>
+<l c="bkr" n="Batak (Karo)" lng="98.25" lat="3.25"/>
+<l c="bto" n="Batak (Toba)" lng="99.0" lat="2.5"/>
+<l c="baw" n="Bawm" lng="92.25" lat="22.5"/>
+<l c="bee" n="Beembe" lng="14.0833333333" lat="-3.91666666667"/>
+<l c="bej" n="Beja" lng="36.0" lat="18.0"/>
+<l c="bco" n="Bella Coola" lng="-126.666666667" lat="52.5"/>
+<l c="ben" n="Bengali" lng="90.0" lat="24.0"/>
+<l c="bma" n="Berber (Middle Atlas)" lng="-5.0" lat="33.0"/>
+<l c="ber" n="Berta" lng="34.6666666667" lat="10.3333333333"/>
+<l c="bir" n="Birom" lng="8.83333333333" lat="9.66666666667"/>
+<l c="bis" n="Bisa" lng="-0.5" lat="11.5"/>
+<l c="bbf" n="Bobo Madaré (Northern)" lng="-4.3333333333333" lat="12.4166666666667"/>
+<l c="bod" n="Bodo" lng="92.0" lat="26.8333333333"/>
+<l c="brh" n="Brahui" lng="67.0" lat="28.5"/>
+<l c="bra" n="Brao" lng="107.5" lat="14.1666666667"/>
+<l c="bre" n="Breton" lng="-3.0" lat="48.0"/>
+<l c="brw" n="Bru (Western)" lng="104.75" lat="16.75"/>
+<l c="bul" n="Bulgarian" lng="25.0" lat="42.5"/>
+<l c="bua" n="Burarra" lng="134.583333333" lat="-12.25"/>
+<l c="brm" n="Burmese" lng="96.0" lat="21.0"/>
+<l c="bur" n="Burushaski" lng="74.5" lat="36.5"/>
+<l c="bet" n="Bété" lng="-6.25" lat="6.25"/>
+<l c="cac" n="Cacua" lng="-70.0" lat="1.08333333333"/>
+<l c="cah" n="Cahuilla" lng="-116.25" lat="33.5"/>
+<l c="cam" n="Camsá" lng="-77.0" lat="1.16666666667"/>
+<l c="cnl" n="Canela" lng="-45.0" lat="-7.0"/>
+<l c="cnt" n="Cantonese" lng="113.0" lat="23.0"/>
+<l c="ctl" n="Catalan" lng="2.0" lat="41.75"/>
+<l c="cay" n="Cayapa" lng="-79.0" lat="0.666666666667"/>
+<l c="chw" n="Cham (Western)" lng="105.5" lat="12.0"/>
+<l c="cha" n="Chamorro" lng="144.75" lat="13.45"/>
+<l c="cso" n="Chatino (Sierra Occidental)" lng="-97.3333333333" lat="16.25"/>
+<l c="chl" n="Chehalis (Upper)" lng="-123.0" lat="46.5833333333"/>
+<l c="che" n="Cherokee" lng="-83.5" lat="35.5"/>
+<l c="cti" n="Chin (Tiddim)" lng="93.6666666667" lat="23.3333333333"/>
+<l c="cle" n="Chinantec (Lealao)" lng="-95.9166666667" lat="17.3333333333"/>
+<l c="chq" n="Chinantec (Quiotepec)" lng="-96.6666666667" lat="17.5833333333"/>
+<l c="chv" n="Chuvash" lng="47.5" lat="55.5"/>
+<l c="cil" n="CiLuba" lng="22.0" lat="-6.0"/>
+<l c="dgb" n="Dagbani" lng="-0.5" lat="9.58333333333"/>
+<l c="dgr" n="Dagur" lng="124.0" lat="48.0"/>
+<l c="ddf" n="Daju (Dar Fur)" lng="25.25" lat="12.25"/>
+<l c="dan" n="Dan" lng="-8.0" lat="7.5"/>
+<l c="dnw" n="Dangaléat (Western)" lng="18.3333333333" lat="12.1666666667"/>
+<l c="dni" n="Dani (Lower Grand Valley)" lng="138.833333333" lat="-4.33333333333"/>
+<l c="dar" n="Darai" lng="84.0" lat="24.0"/>
+<l c="die" n="Diegueño (Mesa Grande)" lng="-116.166666667" lat="32.6666666667"/>
+<l c="din" n="Dinka" lng="28.0" lat="8.5"/>
+<l c="dio" n="Diola-Fogny" lng="-16.25" lat="13.0"/>
+<l c="diy" n="Diyari" lng="139.0" lat="-28.0"/>
+<l c="diz" n="Dizi" lng="36.5" lat="6.16666666667"/>
+<l c="djp" n="Djapu" lng="136.0" lat="-12.6666666667"/>
+<l c="don" n="Dong (Southern)" lng="109.0" lat="27.0"/>
+<l c="doy" n="Doyayo" lng="13.0833333333" lat="8.66666666667"/>
+<l c="dre" n="Drehu" lng="167.25" lat="-21.0"/>
+<l c="dum" n="Dumo" lng="141.3" lat="-2.68333333333"/>
+<l c="dyi" n="Dyirbal" lng="145.583333333" lat="-17.8333333333"/>
+<l c="eng" n="English" lng="0.0" lat="52.0"/>
+<l c="evn" n="Even" lng="130.0" lat="68.0"/>
+<l c="eve" n="Evenki" lng="125.0" lat="56.0"/>
+<l c="ewe" n="Ewe" lng="0.416666666667" lat="6.33333333333"/>
+<l c="ewo" n="Ewondo" lng="12.0" lat="4.0"/>
+<l c="fij" n="Fijian" lng="178.0" lat="-17.8333333333"/>
+<l c="fin" n="Finnish" lng="25.0" lat="62.0"/>
+<l c="fre" n="French" lng="2.0" lat="48.0"/>
+<l c="ful" n="Fulniô" lng="-37.5" lat="-8.0"/>
+<l c="fur" n="Fur" lng="25.0" lat="13.5"/>
+<l c="fuz" n="Fuzhou" lng="119.5" lat="26.0"/>
+<l c="fye" n="Fyem" lng="9.33333333333" lat="9.58333333333"/>
+<l c="grr" n="Garrwa" lng="137.166666667" lat="-17.0833333333"/>
+<l c="gbb" n="Gbeya Bossangoa" lng="17.5" lat="6.66666666667"/>
+<l c="gla" n="Gelao" lng="105.5" lat="22.9166666667"/>
+<l c="ger" n="German" lng="10.0" lat="52.0"/>
+<l c="goo" n="Gooniyandi" lng="126.333333333" lat="-18.3333333333"/>
+<l c="grb" n="Grebo" lng="-8.0" lat="5.0"/>
+<l c="grk" n="Greek (Modern)" lng="22.0" lat="39.0"/>
+<l c="ghb" n="Guahibo" lng="-69.0" lat="5.0"/>
+<l c="gmb" n="Guambiano" lng="-76.6666666667" lat="2.5"/>
+<l c="gua" n="Guaraní" lng="-56.0" lat="-26.0"/>
+<l c="gwa" n="Gwari" lng="7.0" lat="9.5"/>
+<l c="ga" n="Gã" lng="-0.166666666667" lat="5.66666666667"/>
+<l c="hak" n="Hakka" lng="116.0" lat="25.0"/>
+<l c="hmr" n="Hamer" lng="36.5" lat="5.0"/>
+<l c="hau" n="Hausa" lng="7.0" lat="12.0"/>
+<l c="haw" n="Hawaiian" lng="-155.5" lat="19.5833333333"/>
+<l c="hba" n="Hebrew (Modern Ashkenazic)" lng="35.1666666667" lat="31.75"/>
+<l c="hin" n="Hindi" lng="77.0" lat="25.0"/>
+<l c="hmo" n="Hmong Njua" lng="105.0" lat="28.0"/>
+<l c="htc" n="Huastec" lng="-99.3333333333" lat="22.0833333333"/>
+<l c="hve" n="Huave (San Mateo del Mar)" lng="-95.0" lat="16.2166666667"/>
+<l c="hun" n="Hungarian" lng="20.0" lat="47.0"/>
+<l c="iba" n="Iban" lng="112.0" lat="2.0"/>
+<l c="igb" n="Igbo" lng="7.33333333333" lat="6.0"/>
+<l c="ign" n="Ignaciano" lng="-65.4166666667" lat="-15.1666666667"/>
+<l c="ijo" n="Ijo (Kolokuma)" lng="5.66666666667" lat="4.91666666667"/>
+<l c="ik" n="Ik" lng="34.1666666667" lat="3.75"/>
+<l c="imo" n="Imonda" lng="141.166666667" lat="-3.33333333333"/>
+<l c="ind" n="Indonesian" lng="106.0" lat="0.0"/>
+<l c="igs" n="Ingessana" lng="34.0" lat="11.5"/>
+<l c="ing" n="Ingush" lng="45.0833333333" lat="43.1666666667"/>
+<l c="irx" n="Iranxe" lng="-58.0" lat="-13.0"/>
+<l c="ird" n="Irish (Donegal)" lng="-8.0" lat="55.0"/>
+<l c="iso" n="Isoko" lng="6.25" lat="5.5"/>
+<l c="ito" n="Itonama" lng="-64.3333333333" lat="-12.8333333333"/>
+<l c="iva" n="Ivatan" lng="122.0" lat="20.5"/>
+<l c="jak" n="Jakaltek" lng="-91.6666666667" lat="15.6666666667"/>
+<l c="jaq" n="Jaqaru" lng="-76.0" lat="-13.0"/>
+<l c="jav" n="Javanese" lng="111.0" lat="-7.0"/>
+<l c="jeb" n="Jebero" lng="-76.5" lat="-5.41666666667"/>
+<l c="jeh" n="Jeh" lng="107.833333333" lat="15.1666666667"/>
+<l c="jng" n="Jingpho" lng="97.0" lat="25.4166666667"/>
+<l c="juh" n="Ju|&#39;hoan" lng="21.0" lat="-19.0"/>
+<l c="kek" n="K&#39;ekchí" lng="-89.8333333333" lat="16.0"/>
+<l c="kad" n="Kadugli" lng="29.6666666667" lat="11.0"/>
+<l c="kly" n="Kala Lagaw Ya" lng="142.116666667" lat="-10.1166666667"/>
+<l c="kgu" n="Kalkatungu" lng="139.5" lat="-21.0"/>
+<l c="knd" n="Kannada" lng="76.0" lat="14.0"/>
+<l c="knr" n="Kanuri" lng="13.0" lat="12.0"/>
+<l c="ksg" n="Karen (Sgaw)" lng="97.0" lat="18.0"/>
+<l c="kas" n="Kashmiri" lng="76.0" lat="34.0"/>
+<l c="kws" n="Kawaiisu" lng="-117.5" lat="36.0"/>
+<l c="kyl" n="Kayah Li (Eastern)" lng="97.5" lat="19.0"/>
+<l c="kay" n="Kayardild" lng="139.5" lat="-17.05"/>
+<l c="ked" n="Kedang" lng="123.75" lat="-8.25"/>
+<l c="kef" n="Kefa" lng="36.25" lat="7.25"/>
+<l c="ker" n="Kera" lng="15.0833333333" lat="9.83333333333"/>
+<l c="kha" n="Khalkha" lng="105.0" lat="47.0"/>
+<l c="kty" n="Khanty" lng="65.0" lat="65.0"/>
+<l c="khr" n="Kharia" lng="84.3333333333" lat="22.5"/>
+<l c="khs" n="Khasi" lng="92.0" lat="25.5"/>
+<l c="kmu" n="Khmu&#39;" lng="102.0" lat="21.0"/>
+<l c="klv" n="Kilivila" lng="151.083333333" lat="-8.5"/>
+<l c="kgz" n="Kirghiz" lng="75.0" lat="42.0"/>
+<l c="kss" n="Kisi (Southern)" lng="-10.25" lat="8.5"/>
+<l c="klm" n="Klamath" lng="-121.5" lat="42.5"/>
+<l c="kob" n="Kobon" lng="144.333333333" lat="-5.16666666667"/>
+<l c="koi" n="Koiari" lng="147.333333333" lat="-9.5"/>
+<l c="kzy" n="Komi-Zyrian" lng="55.0" lat="65.0"/>
+<l c="kom" n="Komo" lng="33.75" lat="8.75"/>
+<l c="kkn" n="Konkani" lng="74.0" lat="15.25"/>
+<l c="kgi" n="Konyagi" lng="-13.25" lat="12.5"/>
+<l c="kor" n="Korean" lng="128.0" lat="37.5"/>
+<l c="kfe" n="Koromfe" lng="-0.916666666667" lat="14.25"/>
+<l c="kry" n="Koryak" lng="167.0" lat="61.0"/>
+<l c="kot" n="Kota" lng="77.1666666667" lat="11.5"/>
+<l c="ktk" n="Kotoko" lng="15.3333333333" lat="11.3333333333"/>
+<l c="koy" n="Koya" lng="81.3333333333" lat="17.5"/>
+<l c="kch" n="Koyra Chiini" lng="-3.0" lat="17.0"/>
+<l c="kse" n="Koyraboro Senni" lng="0.0" lat="16.0"/>
+<l c="kpe" n="Kpelle" lng="-10.0" lat="7.0"/>
+<l c="kro" n="Krongo" lng="30.0" lat="10.5"/>
+<l c="kya" n="Kuku-Yalanji" lng="145.0" lat="-16.0"/>
+<l c="kul" n="Kullo" lng="37.0833333333" lat="6.75"/>
+<l c="kun" n="Kuna" lng="-77.3333333333" lat="8.0"/>
+<l c="knm" n="Kunama" lng="37.0" lat="14.5"/>
+<l c="kmp" n="Kunimaipa" lng="146.833333333" lat="-8.0"/>
+<l c="krd" n="Kurdish (Central)" lng="44.0" lat="36.0"/>
+<l c="kur" n="Kurukh" lng="85.5" lat="22.8333333333"/>
+<l c="kwa" n="Kwaio" lng="161.0" lat="-8.95"/>
+<l c="lad" n="Ladakhi" lng="78.0" lat="34.0"/>
+<l c="lah" n="Lahu" lng="98.1666666667" lat="20.0"/>
+<l c="lak" n="Lak" lng="47.1666666667" lat="42.1666666667"/>
+<l c="lkt" n="Lakhota" lng="-101.833333333" lat="43.8333333333"/>
+<l c="lkk" n="Lakkia" lng="110.166666667" lat="24.0833333333"/>
+<l c="lan" n="Lango" lng="33.0" lat="2.16666666667"/>
+<l c="lat" n="Latvian" lng="24.0" lat="57.0"/>
+<l c="lav" n="Lavukaleve" lng="159.2" lat="-9.08333333333"/>
+<l c="llm" n="Lelemi" lng="0.5" lat="7.33333333333"/>
+<l c="len" n="Lenakel" lng="169.25" lat="-19.45"/>
+<l c="lep" n="Lepcha" lng="88.5" lat="27.1666666667"/>
+<l c="lez" n="Lezgian" lng="47.8333333333" lat="41.6666666667"/>
+<l c="lua" n="Lua" lng="17.75" lat="9.75"/>
+<l c="lui" n="Luiseño" lng="-117.166666667" lat="33.3333333333"/>
+<l c="luo" n="Luo" lng="34.75" lat="-0.5"/>
+<l c="kkv" n="Lusi" lng="149.666666667" lat="-5.58333333333"/>
+<l c="lu" n="Lü" lng="100.666666667" lat="22.0"/>
+<l c="mya" n="Ma&#39;ya" lng="130.916666667" lat="-1.25"/>
+<l c="maa" n="Maasai" lng="36.0" lat="-3.0"/>
+<l c="mab" n="Maba" lng="20.8333333333" lat="13.75"/>
+<l c="mne" n="Maidu (Northeast)" lng="-120.666666667" lat="40.0"/>
+<l c="mal" n="Malagasy" lng="47.0" lat="-20.0"/>
+<l c="mlk" n="Malakmalak" lng="130.416666667" lat="-13.4166666667"/>
+<l c="mla" n="Mambila" lng="11.5" lat="6.75"/>
+<l c="mnc" n="Manchu" lng="127.5" lat="49.5"/>
+<l c="mnd" n="Mandarin" lng="110.0" lat="34.0"/>
+<l c="myi" n="Mangarrayi" lng="133.5" lat="-14.6666666667"/>
+<l c="mgg" n="Mangghuer" lng="102.0" lat="36.0"/>
+<l c="map" n="Mapudungun" lng="-72.0" lat="-38.0"/>
+<l c="mrn" n="Maranao" lng="124.25" lat="7.83333333333"/>
+<l c="mku" n="Maranungku" lng="130.0" lat="-13.6666666667"/>
+<l c="mme" n="Mari (Meadow)" lng="48.0" lat="57.0"/>
+<l c="mar" n="Maricopa" lng="-113.166666667" lat="33.1666666667"/>
+<l c="mrt" n="Martuthunira" lng="116.5" lat="-20.8333333333"/>
+<l c="mau" n="Maung" lng="133.5" lat="-11.9166666667"/>
+<l c="maz" n="Mazahua" lng="-99.9166666667" lat="19.4166666667"/>
+<l c="mzc" n="Mazatec (Chiquihuitlán)" lng="-96.9166666667" lat="17.75"/>
+<l c="mba" n="Mba" lng="25.0" lat="1.0"/>
+<l c="mbb" n="Mbabaram" lng="145.0" lat="-17.1666666667"/>
+<l c="mbm" n="Mbum" lng="13.1666666667" lat="7.75"/>
+<l c="mei" n="Meithei" lng="94.0" lat="24.75"/>
+<l c="mie" n="Mien" lng="111.0" lat="25.0"/>
+<l c="mss" n="Miwok (Southern Sierra)" lng="-120.0" lat="37.5"/>
+<l c="mxc" n="Mixtec (Chalcatongo)" lng="-97.5833333333" lat="17.05"/>
+<l c="mxm" n="Mixtec (Molinos)" lng="-97.5833333333" lat="17.0"/>
+<l c="mog" n="Moghol" lng="62.0" lat="35.0"/>
+<l c="mro" n="Moro" lng="30.1666666667" lat="11.0"/>
+<l c="mum" n="Mumuye" lng="11.6666666667" lat="9.0"/>
+<l c="mun" n="Mundari" lng="84.6666666667" lat="23.0"/>
+<l c="mrl" n="Murle" lng="33.5" lat="6.5"/>
+<l c="mpa" n="Murrinh-Patha" lng="129.666666667" lat="-14.6666666667"/>
+<l c="nhn" n="Nahuatl (North Puebla)" lng="-98.25" lat="20.0"/>
+<l c="nai" n="Nanai" lng="137.0" lat="49.5"/>
+<l c="nnc" n="Nancowry" lng="93.5" lat="8.05"/>
+<l c="nan" n="Nandi" lng="35.0" lat="0.25"/>
+<l c="nar" n="Nara (in Ethiopia)" lng="37.5833333333" lat="15.0833333333"/>
+<l c="nbk" n="Natügu" lng="165.866666667" lat="-10.7833333333"/>
+<l c="nax" n="Naxi" lng="100.0" lat="27.5"/>
+<l c="ndt" n="Ndut" lng="-16.9166666667" lat="14.9166666667"/>
+<l c="ndy" n="Ndyuka" lng="-54.5" lat="4.5"/>
+<l c="ntu" n="Nenets" lng="76.0" lat="70.0"/>
+<l c="nap" n="Neo-Aramaic (Persian Azerbaijan)" lng="47.0" lat="38.0"/>
+<l c="nep" n="Nepali" lng="85.0" lat="28.0"/>
+<l c="new" n="Newari (Kathmandu)" lng="85.5" lat="27.6666666667"/>
+<l c="nga" n="Nganasan" lng="93.0" lat="71.0"/>
+<l c="nti" n="Ngiti" lng="30.25" lat="1.33333333333"/>
+<l c="ngi" n="Ngiyambaa" lng="145.5" lat="-31.75"/>
+<l c="chu" n="Nivacle" lng="-60.5" lat="-23.5"/>
+<l c="niv" n="Nivkh" lng="142.0" lat="53.3333333333"/>
+<l c="nob" n="Nobiin" lng="31.0" lat="21.0"/>
+<l c="non" n="Noni" lng="10.5833333333" lat="6.41666666667"/>
+<l c="nor" n="Norwegian" lng="8.0" lat="61.0"/>
+<l c="nun" n="Nung (in Vietnam)" lng="106.416666667" lat="21.9166666667"/>
+<l c="nug" n="Nunggubuyu" lng="135.666666667" lat="-13.75"/>
+<l c="nkt" n="Nyah Kur (Tha Pong)" lng="101.666666667" lat="15.6666666667"/>
+<l c="nyg" n="Nyangi" lng="33.5833333333" lat="3.41666666667"/>
+<l c="nyi" n="Nyimang" lng="29.3333333333" lat="12.1666666667"/>
+<l c="nis" n="Nyishi" lng="93.5" lat="27.5"/>
+<l c="ogb" n="Ogbia" lng="6.25" lat="4.66666666667"/>
+<l c="oji" n="Ojibwa (Eastern)" lng="-80.0" lat="46.0"/>
+<l c="ond" n="Oneida" lng="-75.6666666667" lat="43.0"/>
+<l c="orm" n="Ormuri" lng="69.75" lat="32.5"/>
+<l c="orh" n="Oromo (Harar)" lng="42.0" lat="9.0"/>
+<l c="otm" n="Otomí (Mezquital)" lng="-99.1666666667" lat="20.1666666667"/>
+<l c="pms" n="Paamese" lng="168.25" lat="-16.5"/>
+<l c="pac" n="Pacoh" lng="107.083333333" lat="16.4166666667"/>
+<l c="puk" n="Parauk" lng="99.5" lat="23.25"/>
+<l c="psm" n="Passamaquoddy-Maliseet" lng="-67.0" lat="45.0"/>
+<l c="pec" n="Pech" lng="-85.5" lat="15.0"/>
+<l c="prs" n="Persian" lng="54.0" lat="32.0"/>
+<l c="phl" n="Phlong" lng="99.0" lat="15.0"/>
+<l c="pit" n="Pitjantjatjara" lng="130.0" lat="-26.0"/>
+<l c="poa" n="Po-Ai" lng="164.833333333" lat="-20.6666666667"/>
+<l c="poh" n="Pohnpeian" lng="158.25" lat="6.88333333333"/>
+<l c="pol" n="Polish" lng="20.0" lat="52.0"/>
+<l c="pso" n="Pomo (Southeastern)" lng="-122.5" lat="39.0"/>
+<l c="pur" n="Purépecha" lng="-101.666666667" lat="19.5"/>
+<l c="pae" n="Páez" lng="-76.0" lat="2.66666666667"/>
+<l c="bng" n="Qaqet" lng="152.0" lat="-4.58333333333"/>
+<l c="qaw" n="Qawasqar" lng="-75.0" lat="-49.0"/>
+<l c="qco" n="Quechua (Cochabamba)" lng="-66.0" lat="-17.5"/>
+<l c="ram" n="Rama" lng="-83.75" lat="11.75"/>
+<l c="rom" n="Romanian" lng="25.0" lat="46.0"/>
+<l c="rsc" n="Romansch (Scharans)" lng="9.5" lat="46.75"/>
+<l c="ruk" n="Rukai (Tanan)" lng="120.833333333" lat="22.8333333333"/>
+<l c="rus" n="Russian" lng="38.0" lat="56.0"/>
+<l c="rut" n="Rutul" lng="47.4166666667" lat="41.5"/>
+<l c="sab" n="Sa&#39;ban" lng="115.666666667" lat="3.66666666667"/>
+<l c="scs" n="Saami (Central-South)" lng="16.75" lat="64.6666666667"/>
+<l c="san" n="Sango" lng="18.0" lat="5.0"/>
+<l c="svs" n="Savosavo" lng="159.8" lat="-9.13333333333"/>
+<l c="seb" n="Sebei" lng="34.5833333333" lat="1.33333333333"/>
+<l c="sed" n="Sedang" lng="108.0" lat="14.8333333333"/>
+<l c="slp" n="Selepet" lng="147.166666667" lat="-6.16666666667"/>
+<l c="sel" n="Selknam" lng="-70.0" lat="-53.0"/>
+<l c="skp" n="Selkup" lng="82.0" lat="65.0"/>
+<l c="sml" n="Semelai" lng="103.0" lat="3.0"/>
+<l c="snd" n="Senadi" lng="-6.25" lat="9.5"/>
+<l c="sha" n="Shan" lng="98.0" lat="22.0"/>
+<l c="sdh" n="Sindhi" lng="69.0" lat="26.0"/>
+<l c="snh" n="Sinhala" lng="80.5" lat="7.0"/>
+<l c="som" n="Somali" lng="45.0" lat="3.0"/>
+<l c="soq" n="Soqotri" lng="54.0" lat="12.5"/>
+<l c="sor" n="Sora" lng="84.3333333333" lat="20.0"/>
+<l c="spa" n="Spanish" lng="-4.0" lat="40.0"/>
+<l c="sre" n="Sre" lng="108.0" lat="11.5"/>
+<l c="sui" n="Sui" lng="107.5" lat="26.0"/>
+<l c="sup" n="Supyire" lng="-5.58333333333" lat="11.5"/>
+<l c="swa" n="Swahili" lng="39.0" lat="-6.5"/>
+<l c="sba" n="Sáliba (in Colombia)" lng="-70.0" lat="6.0"/>
+<l c="tab" n="Taba" lng="127.5" lat="0.0"/>
+<l c="tag" n="Tagalog" lng="121.0" lat="15.0"/>
+<l c="tma" n="Tama" lng="22.0" lat="14.5"/>
+<l c="tam" n="Tamang (Eastern)" lng="85.666666666667" lat="27.5"/>
+<l c="tmp" n="Tampulma" lng="-0.583333333333" lat="10.4166666667"/>
+<l c="tok" n="Tarok" lng="10.0833333333" lat="9.0"/>
+<l c="tas" n="Tashlhiyt" lng="-5.0" lat="31.0"/>
+<l c="tsg" n="Tausug" lng="121.0" lat="6.0"/>
+<l c="tks" n="Teke (Southern)" lng="14.5" lat="-2.33333333333"/>
+<l c="tel" n="Telugu" lng="79.0" lat="16.0"/>
+<l c="tmn" n="Temein" lng="29.4166666667" lat="11.9166666667"/>
+<l c="tne" n="Temne" lng="-13.0833333333" lat="8.66666666667"/>
+<l c="ttn" n="Tetun" lng="126.0" lat="-9.0"/>
+<l c="tha" n="Thai" lng="101.0" lat="16.0"/>
+<l c="tib" n="Tibetan (Standard Spoken)" lng="91.0" lat="30.0"/>
+<l c="tgr" n="Tigré" lng="38.5" lat="16.5"/>
+<l c="try" n="Tiruray" lng="124.166666667" lat="6.75"/>
+<l c="tiw" n="Tiwi" lng="131.0" lat="-11.5"/>
+<l c="tlp" n="Tlapanec" lng="-99.0" lat="17.0833333333"/>
+<l c="toa" n="Toaripi" lng="146.25" lat="-8.33333333333"/>
+<l c="tol" n="Tol" lng="-87.0" lat="14.6666666667"/>
+<l c="ton" n="Tonkawa" lng="-96.75" lat="30.25"/>
+<l c="dts" n="Toro So" lng="-3.25" lat="14.4166666667"/>
+<l c="tug" n="Tuareg (Ahaggar)" lng="6.0" lat="23.0"/>
+<l c="tuk" n="Tukang Besi" lng="123.5" lat="-5.5"/>
+<l c="tul" n="Tulu" lng="75.3333333333" lat="12.75"/>
+<l c="tun" n="Tunica" lng="-91.0" lat="32.6666666667"/>
+<l c="tur" n="Turkish" lng="35.0" lat="39.0"/>
+<l c="tuv" n="Tuvan" lng="95.0" lat="52.0"/>
+<l c="tza" n="Tzeltal (Aguacatenango)" lng="-92.5" lat="16.4166666667"/>
+<l c="umb" n="UMbundu" lng="15.0" lat="-12.5"/>
+<l c="una" n="Una" lng="140.0" lat="-4.66666666667"/>
+<l c="ung" n="Ungarinjin" lng="126.0" lat="-16.3333333333"/>
+<l c="uzn" n="Uzbek (Northern)" lng="66.5" lat="40.6666666667"/>
+<l c="vie" n="Vietnamese" lng="106.5" lat="10.5"/>
+<l c="wah" n="Wahgi" lng="144.716666667" lat="-5.83333333333"/>
+<l c="wam" n="Wambaya" lng="135.75" lat="-18.6666666667"/>
+<l c="wap" n="Wappo" lng="-122.5" lat="38.5"/>
+<l c="wry" n="Waray (in Australia)" lng="131.25" lat="-13.1666666667"/>
+<l c="wrd" n="Wardaman" lng="131.0" lat="-15.5"/>
+<l c="wrs" n="Waris" lng="141.0" lat="-3.16666666667"/>
+<l c="wma" n="West Makian" lng="127.583333333" lat="0.5"/>
+<l c="wdo" n="Western Desert (Ooldea)" lng="132.0" lat="-30.5"/>
+<l c="wch" n="Wichí" lng="-62.5833333333" lat="-22.5"/>
+<l c="wmu" n="Wik Munkan" lng="141.75" lat="-13.9166666667"/>
+<l c="woi" n="Woisika" lng="124.833333333" lat="-8.25"/>
+<l c="wlf" n="Wolof" lng="-16.0" lat="15.25"/>
+<l c="wuc" n="Wu" lng="119.916666667" lat="31.6666666667"/>
+<l c="yan" n="Yana" lng="-122.0" lat="40.5"/>
+<l c="yny" n="Yanyuwa" lng="137.166666667" lat="-16.4166666667"/>
+<l c="yap" n="Yapese" lng="138.166666667" lat="9.58333333333"/>
+<l c="yaq" n="Yaqui" lng="-110.25" lat="27.5"/>
+<l c="yay" n="Yay" lng="104.75" lat="22.4166666667"/>
+<l c="yel" n="Yelî Dnye" lng="154.166666667" lat="-11.3666666667"/>
+<l c="yes" n="Yessan-Mayo" lng="142.583333333" lat="-4.16666666667"/>
+<l c="yid" n="Yidiny" lng="145.75" lat="-17.0"/>
+<l c="yim" n="Yimas" lng="143.55" lat="-4.66666666667"/>
+<l c="yor" n="Yoruba" lng="4.33333333333" lat="8.0"/>
+<l c="yct" n="Yucatec" lng="-89.0" lat="20.0"/>
+<l c="yko" n="Yukaghir (Kolyma)" lng="150.833333333" lat="65.75"/>
+<l c="ytu" n="Yukaghir (Tundra)" lng="155.0" lat="69.0"/>
+<l c="yul" n="Yulu" lng="25.25" lat="8.5"/>
+<l c="yus" n="Yupik (Siberian)" lng="-173.0" lat="65.0"/>
+<l c="zqc" n="Zoque (Copainalá)" lng="-93.25" lat="17.0"/>
+</v>
+<v numeric="3" description="Laterals, but no /l/, no obstruent laterals" icon_id="cffff00" icon_url="https://wals.info/clld-static/icons/cffff00.png" zindex="0">
+<l c="ach" n="Aché" lng="-55.1666666667" lat="-25.25"/>
+<l c="aik" n="Aikaná" lng="-60.6666666667" lat="-12.6666666667"/>
+<l c="amu" n="Amuesha" lng="-75.4166666667" lat="-10.5"/>
+<l c="ant" n="Angaataha" lng="146.25" lat="-7.21666666667"/>
+<l c="eka" n="Ekari" lng="135.5" lat="-3.83333333333"/>
+<l c="geo" n="Georgian" lng="44.0" lat="42.0"/>
+<l c="goa" n="Goajiro" lng="-72.0" lat="12.0"/>
+<l c="gan" n="Great Andamanese" lng="92.6666666667" lat="12.0"/>
+<l c="hix" n="Hixkaryana" lng="-59.0" lat="-1.0"/>
+<l c="iaa" n="Iaai" lng="166.583333333" lat="-20.4166666667"/>
+<l c="jpr" n="Japreria" lng="-73.0" lat="10.5"/>
+<l c="ket" n="Ket" lng="87.0" lat="64.0"/>
+<l c="kew" n="Kewa" lng="143.833333333" lat="-6.5"/>
+<l c="khm" n="Khmer" lng="105.0" lat="12.5"/>
+<l c="lit" n="Lithuanian" lng="24.0" lat="55.0"/>
+<l c="lug" n="Lugbara" lng="30.9166666667" lat="3.08333333333"/>
+<l c="luv" n="Luvale" lng="22.0" lat="-12.0"/>
+<l c="mrd" n="Marind" lng="140.166666667" lat="-7.83333333333"/>
+<l c="nmb" n="Nambikuára (Southern)" lng="-59.5" lat="-14.0"/>
+<l c="ood" n="O&#39;odham" lng="-112.0" lat="32.0"/>
+<l c="pai" n="Paiwan" lng="120.833333333" lat="22.5"/>
+<l c="psh" n="Pashto" lng="67.0" lat="33.0"/>
+<l c="paw" n="Pawaian" lng="145.083333333" lat="-7.0"/>
+<l c="wra" n="Warao" lng="-61.6666666667" lat="9.33333333333"/>
+<l c="ygr" n="Yagaria" lng="145.416666667" lat="-6.33333333333"/>
+<l c="ykt" n="Yakut" lng="130.0" lat="62.0"/>
+<l c="yey" n="Yeyi" lng="23.5" lat="-20.0"/>
+<l c="ycn" n="Yucuna" lng="-71.0" lat="-0.75"/>
+<l c="zan" n="Zande" lng="26.0" lat="4.0"/>
+</v>
+<v numeric="4" description="/l/ and lateral obstruent" icon_id="c990099" icon_url="https://wals.info/clld-static/icons/c990099.png" zindex="0">
+<l c="abm" n="Alabama" lng="-87.4166666667" lat="32.3333333333"/>
+<l c="arc" n="Archi" lng="46.8333333333" lat="42.0"/>
+<l c="ava" n="Avar" lng="46.5" lat="42.5"/>
+<l c="awp" n="Awa Pit" lng="-78.25" lat="1.5"/>
+<l c="cck" n="Chickasaw" lng="-88.0" lat="34.0"/>
+<l c="chp" n="Chipewyan" lng="-106.0" lat="59.0"/>
+<l c="ccp" n="Cocopa" lng="-115.0" lat="32.3333333333"/>
+<l c="coo" n="Coos (Hanis)" lng="-124.166666667" lat="43.5"/>
+<l c="dah" n="Dahalo" lng="40.5" lat="-2.33333333333"/>
+<l c="eya" n="Eyak" lng="-145.0" lat="60.5"/>
+<l c="grw" n="Greenlandic (West)" lng="-51.0" lat="64.0"/>
+<l c="had" n="Hadza" lng="35.1666666667" lat="-3.75"/>
+<l c="hai" n="Haida" lng="-132.0" lat="53.0"/>
+<l c="hzb" n="Hunzib" lng="46.25" lat="42.1666666667"/>
+<l c="hup" n="Hupa" lng="-123.666666667" lat="41.0833333333"/>
+<l c="irq" n="Iraqw" lng="35.5" lat="-4.0"/>
+<l c="ite" n="Itelmen" lng="157.5" lat="57.0"/>
+<l c="kal" n="Kalami" lng="72.5" lat="35.5"/>
+<l c="knk" n="Kanakuru" lng="12.0" lat="10.0"/>
+<l c="koa" n="Koasati" lng="-85.1666666667" lat="34.8333333333"/>
+<l c="kwk" n="Kwakw&#39;ala" lng="-127.0" lat="51.0"/>
+<l c="lam" n="Lamé" lng="14.5" lat="9.0"/>
+<l c="lus" n="Lushootseed" lng="-122.0" lat="48.0"/>
+<l c="mak" n="Makah" lng="-124.666666667" lat="48.3333333333"/>
+<l c="mrg" n="Margi" lng="13.0" lat="11.0"/>
+<l c="mov" n="Movima" lng="-65.6666666667" lat="-13.8333333333"/>
+<l c="nav" n="Navajo" lng="-108.0" lat="36.1666666667"/>
+<l c="nez" n="Nez Perce" lng="-116.0" lat="46.0"/>
+<l c="ngz" n="Ngizim" lng="10.9166666667" lat="12.0833333333"/>
+<l c="qui" n="Quileute" lng="-124.25" lat="47.9166666667"/>
+<l c="sdw" n="Sandawe" lng="35.0" lat="-5.0"/>
+<l c="shu" n="Shuswap" lng="-120.0" lat="52.0"/>
+<l c="sla" n="Slave" lng="-125.0" lat="67.0"/>
+<l c="squ" n="Squamish" lng="-123.166666667" lat="49.6666666667"/>
+<l c="teh" n="Tehuelche" lng="-68.0" lat="-48.0"/>
+<l c="ter" n="Tera" lng="11.8333333333" lat="11.0"/>
+<l c="twn" n="Tiwa (Northern)" lng="-105.5" lat="36.5"/>
+<l c="tpa" n="Totonac (Papantla)" lng="-97.3333333333" lat="20.3333333333"/>
+<l c="tru" n="Trumai" lng="-53.5833333333" lat="-11.9166666667"/>
+<l c="tsi" n="Tsimshian (Coast)" lng="-129.0" lat="52.5"/>
+<l c="ttu" n="Tsova-Tush" lng="45.5" lat="42.5"/>
+<l c="win" n="Wintu" lng="-122.5" lat="41.0"/>
+<l c="wiy" n="Wiyot" lng="-124.166666667" lat="40.8333333333"/>
+<l c="yuc" n="Yuchi" lng="-86.75" lat="35.75"/>
+<l c="yur" n="Yurok" lng="-124.0" lat="41.3333333333"/>
+<l c="zul" n="Zulu" lng="30.0" lat="-30.0"/>
+<l c="zun" n="Zuni" lng="-108.833333333" lat="35.0833333333"/>
+</v>
+<v numeric="5" description="No /l/, but lateral obstruents" icon_id="cdd0000" icon_url="https://wals.info/clld-static/icons/cdd0000.png" zindex="0">
+<l c="aht" n="Ahtna" lng="-145.0" lat="62.0"/>
+<l c="chk" n="Chukchi" lng="-173.0" lat="67.0"/>
+<l c="kab" n="Kabardian" lng="43.5" lat="43.5"/>
+<l c="kio" n="Kiowa" lng="-99.0" lat="37.0"/>
+<l c="kut" n="Kutenai" lng="-116.0" lat="49.5"/>
+<l c="nuu" n="Nuuchahnulth" lng="-126.666666667" lat="49.6666666667"/>
+<l c="tgk" n="Tigak" lng="150.8" lat="-2.71666666667"/>
+<l c="tli" n="Tlingit" lng="-135.0" lat="59.0"/>
+</v>
+</feature>
+"""
+
 # =============================================================================
 # REFUGIA GEOGRAPHIC DEFINITIONS
 # =============================================================================
@@ -2022,24 +2616,21 @@ def classify_region(lat: float, lng: float) -> str:
     Classify a language's location into a region.
     
     Refugia definitions:
-    - Americas: longitude < -30°
+    - Americas: longitude < -30° (excluding Pacific Oceania and Siberia)
     - Sahul: longitude > 110° AND latitude < 3°, 
              with additional restriction that languages between 
              latitudes -11° and 3° must have longitude > 125°
              (to exclude Sulawesi, Lesser Sundas, etc.)
+             PLUS Pacific extension for Micronesian and Polynesian languages
     - Caucasus: 37° < latitude < 45° AND 37° < longitude < 50°
     
     Returns: 'americas', 'sahul', 'caucasus', or 'non_refugia'
     """
-    # Americas
-    if lng < -30:
-        return 'americas'
-    
-    # Caucasus
+    # Caucasus (check first as it's the most specific)
     if 37 < lat < 45 and 37 < lng < 50:
         return 'caucasus'
     
-    # Sahul (with Wallacea exclusion)
+    # Sahul - original definition (Oceania/Australasia with Wallacea exclusion)
     if lng > 110 and lat < 3:
         # Additional check for western Wallacea exclusion
         if -11 < lat < 3:
@@ -2049,6 +2640,31 @@ def classify_region(lat: float, lng: float) -> str:
                 return 'non_refugia'
         else:
             return 'sahul'
+    # Sahul extension: Micronesia
+    # East of 130°E, between equator and 20°N
+    # Captures Yapese, Chamorro, Pohnpeian, etc.
+    if lng > 130 and 0 < lat < 20:
+        return 'sahul'
+    
+    # Sahul extension: Polynesian 1
+    # Rule 1: North/Central Pacific - captures Hawaiian etc.
+    # Languages south of 50°N and west of 130°W
+    if lng < -130 and lat < 50:
+        return 'sahul'
+    
+    # Rule 2: Polynesian 2
+    # Languages south of equator and west of 100°W  - captures Rapa Nui etc.
+    if lng < -100 and lat < 0:
+        return 'sahul'
+    
+    # Exclude Siberia (Chukotka Peninsula) from Americas
+    # Languages north of 60°N and west of 168°W are in Russia, not Americas
+    if lat > 60 and lng < -168:
+        return 'non_refugia'
+    
+    # Americas - main definition
+    if lng < -30:
+        return 'americas'
     
     return 'non_refugia'
 
@@ -2405,7 +3021,7 @@ def analyze_feature(
     feature_label: str,
     baseline_stats: Dict[str, any],
     k_neighbors: int = 5,
-    run_permutation: bool = False,
+    run_permutation: bool = True,
     n_permutations: int = 999
 ) -> Dict[str, any]:
     """
@@ -2650,6 +3266,50 @@ def main():
         all_results.append(result)
         print_results(result, baseline)
     
+    # 1A: Moderately Small Consonant Inventories (value = 2) [CONTROL]
+    if '1A' in datasets:
+        result = analyze_feature(
+            datasets['1A'],
+            target_values=[2],
+            feature_label="Moderately Small Consonant Inventories (15-18) [CONTROL]",
+            baseline_stats=baseline
+        )
+        all_results.append(result)
+        print_results(result, baseline)
+    
+    # 1A: Average Consonant Inventories (value = 3) [CONTROL]
+    if '1A' in datasets:
+        result = analyze_feature(
+            datasets['1A'],
+            target_values=[3],
+            feature_label="Average Consonant Inventories (19-25) [CONTROL]",
+            baseline_stats=baseline
+        )
+        all_results.append(result)
+        print_results(result, baseline)
+    
+    # 1A: Moderately Large Consonant Inventories (value = 4) [CONTROL]
+    if '1A' in datasets:
+        result = analyze_feature(
+            datasets['1A'],
+            target_values=[4],
+            feature_label="Moderately Large Consonant Inventories (26-33) [CONTROL]",
+            baseline_stats=baseline
+        )
+        all_results.append(result)
+        print_results(result, baseline)
+    
+    # 1A: Large Consonant Inventories (value = 5) [CONTROL]
+    if '1A' in datasets:
+        result = analyze_feature(
+            datasets['1A'],
+            target_values=[5],
+            feature_label="Large Consonant Inventories (34+) [CONTROL]",
+            baseline_stats=baseline
+        )
+        all_results.append(result)
+        print_results(result, baseline)
+
     # 2A: Small Vowel Inventories (value = 1)
     if '2A' in datasets:
         result = analyze_feature(
@@ -2661,11 +3321,34 @@ def main():
         all_results.append(result)
         print_results(result, baseline)
     
-    # 18A: Absence of Fricatives (value = 3)
+    # 2A: Average Vowel Inventories (value = 2) [CONTROL]
+    if '2A' in datasets:
+        result = analyze_feature(
+            datasets['2A'],
+            target_values=[2],
+            feature_label="Average Vowel Quality Inventories (5-6) [CONTROL]",
+            baseline_stats=baseline
+        )
+        all_results.append(result)
+        print_results(result, baseline)
+    
+    # 2A: Large Vowel Inventories (value = 3) [CONTROL]
+    if '2A' in datasets:
+        result = analyze_feature(
+            datasets['2A'],
+            target_values=[3],
+            feature_label="Large Vowel Quality Inventories (7-14) [CONTROL]",
+            baseline_stats=baseline
+        )
+        all_results.append(result)
+        print_results(result, baseline)
+
+    # 18A: Absence of Fricatives (values = 3, 6)
+    # v=3 is "No fricatives", v=6 is "No fricatives or nasals" (e.g., Maxakalí)
     if '18A' in datasets:
         result = analyze_feature(
             datasets['18A'],
-            target_values=[3],
+            target_values=[3, 6],
             feature_label="Absence of Fricatives",
             baseline_stats=baseline
         )
@@ -2694,12 +3377,99 @@ def main():
         all_results.append(result)
         print_results(result, baseline)
     
+    # 18A: All Common Consonants Present (value = 1) [CONTROL]
+    if '18A' in datasets:
+        result = analyze_feature(
+            datasets['18A'],
+            target_values=[1],
+            feature_label="All Common Consonants Present [CONTROL]",
+            baseline_stats=baseline
+        )
+        all_results.append(result)
+        print_results(result, baseline)
+    
+    # 18A: Any Common Consonant Absent (values = 2,3,4,5,6) [COMPOSITE]
+    if '18A' in datasets:
+        result = analyze_feature(
+            datasets['18A'],
+            target_values=[2, 3, 4, 5, 6],
+            feature_label="Any Common Consonant Absent [COMPOSITE]",
+            baseline_stats=baseline
+        )
+        all_results.append(result)
+        print_results(result, baseline)
+
     # 131A: Restricted Numeral Systems (value = 6)
     if '131A' in datasets:
         result = analyze_feature(
             datasets['131A'],
             target_values=[6],
             feature_label="Restricted Numeral Systems",
+            baseline_stats=baseline
+        )
+        all_results.append(result)
+        print_results(result, baseline)
+    # 131A: Decimal (value = 1) [CONTROL]
+    if '131A' in datasets:
+        result = analyze_feature(
+            datasets['131A'],
+            target_values=[1],
+            feature_label="Decimal Numeral System [CONTROL]",
+            baseline_stats=baseline
+        )
+        all_results.append(result)
+        print_results(result, baseline)
+    
+    # 131A: Hybrid Vigesimal-Decimal (value = 2) [CONTROL]
+    if '131A' in datasets:
+        result = analyze_feature(
+            datasets['131A'],
+            target_values=[2],
+            feature_label="Hybrid Vigesimal-Decimal [CONTROL]",
+            baseline_stats=baseline
+        )
+        all_results.append(result)
+        print_results(result, baseline)
+    
+    # 131A: Pure Vigesimal (value = 3) [CONTROL]
+    if '131A' in datasets:
+        result = analyze_feature(
+            datasets['131A'],
+            target_values=[3],
+            feature_label="Pure Vigesimal [CONTROL]",
+            baseline_stats=baseline
+        )
+        all_results.append(result)
+        print_results(result, baseline)
+    
+    # 131A: Other Base (value = 4) [CONTROL]
+    if '131A' in datasets:
+        result = analyze_feature(
+            datasets['131A'],
+            target_values=[4],
+            feature_label="Other Numeral Base [CONTROL]",
+            baseline_stats=baseline
+        )
+        all_results.append(result)
+        print_results(result, baseline)
+    
+    # 131A: Extended Body-Part System (value = 5) [CONTROL]
+    if '131A' in datasets:
+        result = analyze_feature(
+            datasets['131A'],
+            target_values=[5],
+            feature_label="Extended Body-Part System [CONTROL]",
+            baseline_stats=baseline
+        )
+        all_results.append(result)
+        print_results(result, baseline)
+    
+    # 131A: All Non-Decimal Systems (values = 2,3,4,5,6) [COMPOSITE]
+    if '131A' in datasets:
+        result = analyze_feature(
+            datasets['131A'],
+            target_values=[2, 3, 4, 5, 6],
+            feature_label="Any Non-Decimal Numeral System [COMPOSITE]",
             baseline_stats=baseline
         )
         all_results.append(result)
