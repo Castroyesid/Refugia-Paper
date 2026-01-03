@@ -3021,7 +3021,7 @@ def analyze_feature(
     feature_label: str,
     baseline_stats: Dict[str, any],
     k_neighbors: int = 5,
-    run_permutation: bool = True,
+    run_permutation: bool = False,
     n_permutations: int = 999
 ) -> Dict[str, any]:
     """
