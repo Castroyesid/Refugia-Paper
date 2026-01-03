@@ -2613,14 +2613,12 @@ WALS_8A_LATERAL_CONSONANTS = """
 
 def classify_region(lat: float, lng: float) -> str:
     """
-    Classify a language's location into a region.
+    Classify a language's location into a main region.
     
     Refugia definitions:
     - Americas: longitude < -30° (excluding Pacific Oceania and Siberia)
     - Sahul: longitude > 110° AND latitude < 3°, 
-             with additional restriction that languages between 
-             latitudes -11° and 3° must have longitude > 125°
-             (to exclude Sulawesi, Lesser Sundas, etc.)
+             with additional restrictions (see code)
              PLUS Pacific extension for Micronesian and Polynesian languages
     - Caucasus: 37° < latitude < 45° AND 37° < longitude < 50°
     
@@ -2653,7 +2651,7 @@ def classify_region(lat: float, lng: float) -> str:
         return 'sahul'
     
     # Rule 2: Polynesian 2
-    # Languages south of equator and west of 100°W  - captures Rapa Nui etc.
+    # Languages south of equator and west of 100°W - captures Rapa Nui etc.
     if lng < -100 and lat < 0:
         return 'sahul'
     
@@ -2668,6 +2666,93 @@ def classify_region(lat: float, lng: float) -> str:
     
     return 'non_refugia'
 
+def classify_subregion(lat: float, lng: float) -> str:
+    """
+    Classify a language's location into a detailed subregion.
+    
+    Returns one of:
+    - Within Americas: 'south_america', 'ne_pacific', 'americas_other'
+    - Within Sahul: 'new_guinea', 'australia', 'sahul_other'
+    - Within Caucasus: 'sw_caucasus', 'se_caucasus', 'nw_caucasus', 'ne_caucasus'
+    - Within Non-refugia: 'west_africa', 'rift_valley', 'south_africa', 'non_refugia_other'
+    """
+    # First get main region
+    main_region = classify_region(lat, lng)
+    
+    # AMERICAS SUBREGIONS
+    if main_region == 'americas':
+        # NE Pacific: -155 < lng < -105 AND 40 < lat < 70
+        if -155 < lng < -105 and 40 < lat < 70:
+            return 'ne_pacific'
+        
+        # South America (three conditions):
+        # Primary: -100 < lng < -30 AND lat < 0
+        if -100 < lng < -30 and lat < 0:
+            return 'south_america'
+        # Northern SA: lng > -77.5 AND lat < 12.5
+        if lng > -77.5 and lat < 12.5:
+            return 'south_america'
+        # NW Colombia: -100 < lng < -77.5 AND lat < 7.5
+        if -100 < lng < -77.5 and lat < 7.5:
+            return 'south_america'
+        
+        return 'americas_other'
+    
+    # SAHUL SUBREGIONS
+    elif main_region == 'sahul':
+        # Only apply NG/Australia split west of 150°E (mainland + Torres Strait)
+        # East of 150°E counts as sahul_other (Pacific islands)
+        if lng < 150 and lat < -11: 
+            return 'australia'
+        if lng < 155 and lat < -20: 
+            return 'australia'
+        
+        return 'sahul_other'
+    
+    # CAUCASUS 
+    elif main_region == 'caucasus':
+        if lng <= 44.5 and lat <= 42.5:
+            return 'sw_caucasus'
+        if lng >= 44.5 and lat <= 42.5:
+            return 'se_caucasus'
+        if lng <= 44.5 and lat >= 42.5:
+            return 'nw_caucasus'
+        
+        return 'ne_caucasus'
+    
+    # NON-REFUGIA SUBREGIONS (checking for refugia-like patterns)
+    else:  # main_region == 'non_refugia'
+        # West Africa: -20 < lng < 15 AND 0 < lat < 15
+        if -20 < lng < 15 and 0 < lat < 15:
+            return 'west_africa'
+        
+        # Great Rift Valley:
+        # Primary: 30 < lng < 45 AND -7 < lat < 12.5
+        if 30 < lng < 45 and -7 < lat < 12.5:
+            return 'rift_valley'
+        # Extension: 12.5 < lng < 20 AND 30 < lat < 40
+        if 12.5 < lng < 20 and 30 < lat < 40:
+            return 'rift_valley'
+        
+        # South Africa: 10 < lng < 45 AND lat < -15
+        if 10 < lng < 45 and lat < -15:
+            return 'south_africa'
+        
+        return 'non_refugia_other'
+
+def get_subregion_stats(languages: List[Language]) -> Dict[str, int]:
+    """
+    Calculate distribution across all subregions.
+    
+    Returns dictionary with counts for each subregion.
+    """
+    subregion_counts = defaultdict(int)
+    
+    for lang in languages:
+        subregion = classify_subregion(lang.latitude, lang.longitude)
+        subregion_counts[subregion] += 1
+    
+    return dict(subregion_counts)
 
 def is_refugia(lat: float, lng: float) -> bool:
     """Returns True if the location is in any refugia region."""
@@ -2785,20 +2870,23 @@ def calculate_enrichment(
     baseline_refugia_pct: float
 ) -> Dict[str, any]:
     """
-    Calculate enrichment statistics for a subset of languages.
+    Calculate enrichment statistics for a subset of languages, including subregion breakdown.
     
     Args:
         target_languages: Languages with the feature of interest
         baseline_refugia_pct: Baseline percentage of all languages in refugia
         
     Returns:
-        Dictionary with enrichment statistics
+        Dictionary with enrichment statistics including subregions
     """
     region_counts = defaultdict(int)
+    subregion_counts = defaultdict(int)
     
     for lang in target_languages:
         region = classify_region(lang.latitude, lang.longitude)
+        subregion = classify_subregion(lang.latitude, lang.longitude)
         region_counts[region] += 1
+        subregion_counts[subregion] += 1
     
     total = len(target_languages)
     refugia_count = sum(region_counts[r] for r in ['americas', 'sahul', 'caucasus'])
@@ -2816,7 +2904,8 @@ def calculate_enrichment(
         'refugia_percentage': refugia_pct,
         'non_refugia_percentage': 100 - refugia_pct,
         'enrichment_factor': enrichment,
-        'region_counts': dict(region_counts)
+        'region_counts': dict(region_counts),
+        'subregion_counts': dict(subregion_counts) 
     }
 
 
@@ -3011,6 +3100,113 @@ def permutation_test(
     
     return (observed_I, p_value)
 
+def analyze_fricative_lateral_correlation(
+    fricative_data: FeatureData,  # WALS 18A
+    lateral_data: FeatureData      # WALS 8A
+) -> Dict[str, any]:
+    """
+    Analyze correlation between absence of fricatives and presence of laterals
+    specifically within the Sahul region.
+    
+    Tests hypothesis: Languages lacking fricatives converted them to laterals.
+    """
+    # Create dictionaries for quick lookup
+    fricative_status = {}  # code -> has_fricatives (bool)
+    lateral_status = {}    # code -> has_laterals (bool)
+    
+    # Parse fricative data (WALS 18A)
+    # Value 3 = no fricatives, Value 6 = no fricatives or nasals
+    for lang in fricative_data.languages:
+        fricative_status[lang.code] = lang.value not in [3, 6]
+    
+    # Parse lateral data (WALS 8A)
+    # Value 1 = no laterals; values 2-5 = has laterals
+    for lang in lateral_data.languages:
+        lateral_status[lang.code] = lang.value != 1
+    
+    # Find languages in Sahul with data for both features
+    sahul_langs_both = []
+    sahul_no_fric_with_lat = 0
+    sahul_no_fric_total = 0
+    
+    for lang in fricative_data.languages:
+        if classify_region(lang.latitude, lang.longitude) == 'sahul':
+            if lang.code in lateral_status:
+                sahul_langs_both.append(lang)
+                
+                has_fric = fricative_status[lang.code]
+                has_lat = lateral_status[lang.code]
+                
+                if not has_fric:  # No fricatives
+                    sahul_no_fric_total += 1
+                    if has_lat:  # Has laterals
+                        sahul_no_fric_with_lat += 1
+    
+    # Overall Sahul baseline (regardless of fricative status)
+    sahul_with_lat_total = sum(1 for lang in sahul_langs_both 
+                                if lateral_status[lang.code])
+    sahul_baseline_pct = 100 * sahul_with_lat_total / len(sahul_langs_both) if sahul_langs_both else 0
+    
+    # Among languages lacking fricatives
+    no_fric_with_lat_pct = 100 * sahul_no_fric_with_lat / sahul_no_fric_total if sahul_no_fric_total > 0 else 0
+    
+    # Enrichment
+    enrichment = no_fric_with_lat_pct / sahul_baseline_pct if sahul_baseline_pct > 0 else 0
+    
+    return {
+        'sahul_total': len(sahul_langs_both),
+        'sahul_baseline_lat_pct': sahul_baseline_pct,
+        'sahul_no_fric_total': sahul_no_fric_total,
+        'sahul_no_fric_with_lat': sahul_no_fric_with_lat,
+        'sahul_no_fric_lat_pct': no_fric_with_lat_pct,
+        'enrichment_factor': enrichment,
+        'languages': sahul_langs_both
+    }
+
+def analyze_lateral_obstruents_nep_caucasus(
+    lateral_data: FeatureData  # WALS 8A
+) -> Dict[str, any]:
+    """
+    Analyze concentration of lateral obstruents in NE Pacific OR Caucasus
+    vs all other regions.
+    
+    Lateral obstruents = WALS 8A values 4 & 5
+    """
+    # Get all languages with lateral obstruents (values 4 or 5)
+    lat_obstruent_langs = [l for l in lateral_data.languages if l.value in [4, 5]]
+    
+    # Classify each
+    nep_or_caucasus = 0
+    nep_count = 0
+    caucasus_count = 0
+    other_count = 0
+    
+    for lang in lat_obstruent_langs:
+        subregion = classify_subregion(lang.latitude, lang.longitude)
+        region = classify_region(lang.latitude, lang.longitude)
+        
+        if subregion == 'ne_pacific':
+            nep_or_caucasus += 1
+            nep_count += 1
+        elif region == 'caucasus':
+            nep_or_caucasus += 1
+            caucasus_count += 1
+        else:
+            other_count += 1
+    
+    total = len(lat_obstruent_langs)
+    nep_cau_pct = 100 * nep_or_caucasus / total if total > 0 else 0
+    
+    return {
+        'total_lateral_obstruents': total,
+        'nep_or_caucasus_total': nep_or_caucasus,
+        'nep_count': nep_count,
+        'caucasus_count': caucasus_count,
+        'other_count': other_count,
+        'nep_or_caucasus_pct': nep_cau_pct,
+        'languages': lat_obstruent_langs
+    }
+
 # =============================================================================
 # ANALYSIS FUNCTIONS
 # =============================================================================
@@ -3164,6 +3360,60 @@ def generate_detailed_regional_table(all_results: List[Dict]) -> str:
     lines.append("=" * 90)
     return "\n".join(lines)
 
+def generate_subregion_table(all_results: List[Dict]) -> str:
+    """Generate detailed subregion breakdown table for selected features."""
+    lines = []
+    lines.append("\n" + "=" * 120)
+    lines.append("SUBREGION BREAKDOWN (Selected Features)")
+    lines.append("=" * 120)
+    
+    # Select interesting features to show subregion detail
+    # (showing all would be too verbose)
+    interesting_features = [
+        "Small Consonant Inventories",
+        "Small Vowel Quality",
+        "Absence of Fricatives",
+        "Restricted Numeral",
+        "No Laterals"
+    ]
+    
+    for r in all_results:
+        if any(feat in r['feature_label'] for feat in interesting_features):
+            lines.append(f"\n{r['feature_label']}:")
+            lines.append("-" * 120)
+            
+            sub = r['enrichment']['subregion_counts']
+            total = r['enrichment']['total']
+            
+            # Group by main region
+            lines.append("  AMERICAS:")
+            for subregion in ['south_america', 'ne_pacific', 'americas_other']:
+                count = sub.get(subregion, 0)
+                pct = 100 * count / total if total > 0 else 0
+                lines.append(f"    {subregion:20s}: {count:4d} ({pct:5.1f}%)")
+            
+            lines.append("  SAHUL:")
+            for subregion in ['australia', 'sahul_other']:
+                count = sub.get(subregion, 0)
+                pct = 100 * count / total if total > 0 else 0
+                lines.append(f"    {subregion:20s}: {count:4d} ({pct:5.1f}%)")
+            
+            lines.append("  CAUCASUS:")
+            for subregion in ['sw_caucasus', 'se_caucasus', 'nw_caucasus', 'ne_caucasus']:
+                count = sub.get(subregion, 0)
+                pct = 100 * count / total if total > 0 else 0
+                if count > 0:  # Only show if present
+                    lines.append(f"    {subregion:20s}: {count:4d} ({pct:5.1f}%)")
+            
+            lines.append("  NON-REFUGIA:")
+            for subregion in ['west_africa', 'rift_valley', 'south_africa', 'non_refugia_other']:
+                count = sub.get(subregion, 0)
+                pct = 100 * count / total if total > 0 else 0
+                lines.append(f"    {subregion:20s}: {count:4d} ({pct:5.1f}%)")
+    
+    lines.append("=" * 120)
+    return "\n".join(lines)
+
 # =============================================================================
 # MAIN ANALYSIS
 # =============================================================================
@@ -3209,6 +3459,13 @@ def main():
     else:
         print("  ✗ 131A: Not loaded (placeholder or invalid data)")
     
+    data_8a = parse_wals_xml(WALS_8A_LATERAL_CONSONANTS)
+    if data_8a:
+        datasets['8A'] = data_8a
+        print(f"  ✓ 8A (Lateral Consonants): {len(data_8a.languages)} languages")
+    else:
+        print("  ✗ 8A: Not loaded (placeholder or invalid data)")
+
     if not datasets:
         print("\n" + "!" * 70)
         print("ERROR: No data loaded!")
@@ -3475,11 +3732,81 @@ def main():
         all_results.append(result)
         print_results(result, baseline)
     
+    # =========================================================================
+    # LATERAL CONSONANT ANALYSES (WALS 8A)
+    # =========================================================================
+    
+    if '8A' in datasets:
+        # Individual value analyses (gradient)
+        for value in [1, 2, 3, 4, 5]:
+            descriptions = {
+                1: "No Laterals",
+                2: "/l/ Only (No Obstruent Laterals) [CONTROL]",
+                3: "Laterals, No /l/, No Obstruent Laterals",
+                4: "/l/ AND Lateral Obstruents",
+                5: "No /l/, But Lateral Obstruents"
+            }
+            result = analyze_feature(
+                datasets['8A'],
+                target_values=[value],
+                feature_label=f"Lateral Consonants: {descriptions[value]}",
+                baseline_stats=baseline
+            )
+            all_results.append(result)
+            print_results(result, baseline)
+        
+        # Minimal vs Elaborated: All except /l/-only (values 1,3,4,5) vs /l/-only (value 2)
+        result = analyze_feature(
+            datasets['8A'],
+            target_values=[1, 3, 4, 5],
+            feature_label="All Non-Standard Lateral Systems (Minimal + Obstruent)",
+            baseline_stats=baseline
+        )
+        all_results.append(result)
+        print_results(result, baseline)
+        
+        # Lateral obstruents combined (values 4 + 5)
+        result = analyze_feature(
+            datasets['8A'],
+            target_values=[4, 5],
+            feature_label="Lateral Obstruents (Any Type)",
+            baseline_stats=baseline
+        )
+        all_results.append(result)
+        print_results(result, baseline)
+        
+        # NE Pacific + Caucasus lateral obstruent concentration
+        print("\n" + "=" * 70)
+        print("SPECIAL ANALYSIS: Lateral Obstruents in NE Pacific OR Caucasus")
+        print("=" * 70)
+        nep_cau_result = analyze_lateral_obstruents_nep_caucasus(datasets['8A'])
+        print(f"\nTotal languages with lateral obstruents: {nep_cau_result['total_lateral_obstruents']}")
+        print(f"\nIn NE Pacific OR Caucasus: {nep_cau_result['nep_or_caucasus_total']} ({nep_cau_result['nep_or_caucasus_pct']:.1f}%)")
+        print(f"  NE Pacific:  {nep_cau_result['nep_count']}")
+        print(f"  Caucasus:    {nep_cau_result['caucasus_count']}")
+        print(f"  Other:       {nep_cau_result['other_count']}")
+        
+        # Fricative-Lateral correlation in Sahul
+        if '18A' in datasets:
+            print("\n" + "=" * 70)
+            print("SPECIAL ANALYSIS: Fricative-Lateral Correlation in Sahul")
+            print("=" * 70)
+            fric_lat_result = analyze_fricative_lateral_correlation(
+                datasets['18A'],
+                datasets['8A']
+            )
+            print(f"\nSahul languages with both features: {fric_lat_result['sahul_total']}")
+            print(f"Sahul baseline (% with laterals): {fric_lat_result['sahul_baseline_lat_pct']:.1f}%")
+            print(f"\nSahul languages lacking fricatives: {fric_lat_result['sahul_no_fric_total']}")
+            print(f"Of these, % with laterals: {fric_lat_result['sahul_no_fric_lat_pct']:.1f}%")
+            print(f"Enrichment factor: {fric_lat_result['enrichment_factor']:.2f}x")
+
     # Generate summary tables
     if all_results:
         print("\n[5] SUMMARY TABLES")
         print(generate_table_1(all_results, baseline))
         print(generate_detailed_regional_table(all_results))
+        print(generate_subregion_table(all_results))
     
     print("\n" + "=" * 70)
     print("ANALYSIS COMPLETE")
