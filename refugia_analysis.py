@@ -3258,7 +3258,7 @@ def analyze_lateral_obstruent_large_consonant_correlation(
     # Get language codes with large consonant inventories (34+)
     large_cons_codes = {
         lang.code for lang in consonant_data.languages
-        if lang.value in [4, 5]  # Moderately large (34) or large (37+)
+        if lang.value in [5]  # Large (34+)
     }
     
     # Find overlap
