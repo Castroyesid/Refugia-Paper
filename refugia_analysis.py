@@ -3460,7 +3460,7 @@ def generate_subregion_table(all_results: List[Dict]) -> str:
         "Absence of Nasals",
         "Absence of Fricatives",
         "Restricted Numeral",
-        "No Laterals"
+        "No Laterals",
         "Lateral Obstruents (Any Type)"
     ]
     
