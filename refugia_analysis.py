@@ -3276,8 +3276,8 @@ def analyze_lateral_obstruent_large_consonant_correlation(
     
     for lang in lateral_data.languages:
         if lang.code in both_features:
-            region = classify_language_region(lang.latitude, lang.longitude)
-            subregion = classify_language_subregion(lang.latitude, lang.longitude)
+            region = classify_region(lang.latitude, lang.longitude)
+            subregion = classify_subregion(lang.latitude, lang.longitude)
             region_counts[region] += 1
             subregion_counts[subregion] += 1
     
