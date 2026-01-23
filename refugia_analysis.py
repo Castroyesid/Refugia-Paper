@@ -2721,7 +2721,7 @@ def classify_subregion(lat: float, lng: float) -> str:
     # NON-REFUGIA SUBREGIONS (checking for refugia-like patterns)
     else:  # main_region == 'non_refugia'
         # West Africa: -20 < lng < 15 AND 0 < lat < 15
-        if -20 < lng < 15 and 0 < lat < 15:
+        if -20 < lng < 15 and 0 < lat <= 15:
             return 'west_africa'
         
         # Great Rift Valley:
@@ -3460,8 +3460,9 @@ def generate_subregion_table(all_results: List[Dict]) -> str:
         "Absence of Nasals",
         "Absence of Fricatives",
         "Restricted Numeral",
+        "Other Numeral Base",
         "No Laterals",
-        "Lateral Obstruents (Any Type)"
+        "Lateral Obstruents (With or w.out /l/)"
     ]
     
     for r in all_results:
@@ -3856,7 +3857,7 @@ def main():
         result = analyze_feature(
             datasets['8A'],
             target_values=[4, 5],
-            feature_label="Lateral Obstruents (Any Type)",
+            feature_label="Lateral Obstruents (With or w.out /l/)",
             baseline_stats=baseline
         )
         all_results.append(result)
